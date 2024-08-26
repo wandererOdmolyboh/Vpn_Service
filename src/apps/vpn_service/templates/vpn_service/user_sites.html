@@ -1,0 +1,13 @@
+<h2>Your Sites</h2>
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Add Site</button>
+</form>
+<ul>
+    {% for site in sites %}
+        <li>
+            {{ site.name }} - <a href="{% url 'site_stats' site.id %}">View Stats</a>
+        </li>
+    {% endfor %}
+</ul>

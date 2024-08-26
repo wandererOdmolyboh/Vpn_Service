@@ -1,0 +1,19 @@
+<h2>VPN Usage Statistics</h2>
+<table>
+    <tr>
+        <th>Date</th>
+        <th>Site</th>
+        <th>Page Views</th>
+        <th>Data Sent (bytes)</th>
+        <th>Data Received (bytes)</th>
+    </tr>
+    {% for stat in stats %}
+    <tr>
+        <td>{{ stat.date }}</td>
+        <td>{{ stat.site.name }}</td>
+        <td>{{ stat.page_views }}</td>
+        <td>{{ stat.data_sent }}</td>
+        <td>{{ stat.data_received }}</td>
+    </tr>
+    {% endfor %}
+</table>

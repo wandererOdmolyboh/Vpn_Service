@@ -1,0 +1,7 @@
+<h2>Your Sites</h2>
+<ul>
+    {% for site in sites %}
+    <li>{{ site.name }} - <a href="{{ site.url }}">{{ site.url }}</a></li>
+    {% endfor %}
+</ul>
+<a href="{% url 'create_site' %}">Create New Site</a>
