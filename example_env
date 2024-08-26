@@ -1,0 +1,16 @@
+# SETTINGS DB
+NAME=vpn
+# The name of the database.
+
+USER=root
+# The username for the database.
+
+PASSWORD=root
+# The password for the database.
+
+HOST=postgres
+# The host of the database.
+# If you are using docker-compose, you can uncomment the `postgres` line and comment out the `localhost` line.
+
+PORT=5432
+# The port number for the database.
