@@ -9,7 +9,7 @@ services:
     environment:
       POSTGRES_USER: root
       POSTGRES_PASSWORD: root
-      POSTGRES_DB: bookstore
+      POSTGRES_DB: vpn
     ports:
       - "5432:5432"
     networks:
@@ -23,6 +23,19 @@ services:
     image: adminer
     ports:
       - "8080:8080"
+    networks:
+      - postgres_adminer
+
+  app:
+    build:
+      context: .
+    container_name: vpn_service
+    command: /bin/bash -c "pwd && ls && ./app.sh"
+    ports:
+      - "8000:8000"
+    depends_on:
+      - postgres
+      - adminer
     networks:
       - postgres_adminer
 
