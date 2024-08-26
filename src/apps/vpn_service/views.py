@@ -87,10 +87,7 @@ def site_list(request):
 
 @login_required
 def proxy_view(request, site_name, path):
-    try:
-        user_site = UserSite.objects.get(user=request.user, name=site_name)
-    except UserSite.DoesNotExist:
-        return HttpResponseNotFound("Site not found")
+    user_site = UserSite.objects.get(user=request.user, name=site_name)
 
     target_url = f"{user_site.original_url}/{path}"
     response = requests.get(target_url, params=request.GET)
