@@ -22,5 +22,5 @@ from django.urls import path, include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('vpn/', include('apps.vpn_service.urls')),
+    path('', include('apps.vpn_service.urls')),
 ]

@@ -1,10 +1,14 @@
+import requests
+
+from django.utils import timezone
 from django.shortcuts import render, redirect
+from django.http import HttpResponse, HttpResponseNotFound
 
 from django.contrib.auth import login
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.decorators import login_required
 
-from .models import UserSite, VPNUsage
+from .models import UserSite, VPNUsage, UserProfile
 from .forms import UserForm, UserProfileForm, UserSiteForm
 
 
@@ -14,9 +18,7 @@ def register(request):
         profile_form = UserProfileForm(request.POST)
         if user_form.is_valid() and profile_form.is_valid():
             user = user_form.save()
-            profile_f = profile_form.save(commit=False)
-            profile_f.user = user
-            profile_f.save()
+            UserProfile.objects.create(user=user, **profile_form.cleaned_data)
             login(request, user)
             return redirect('profile')
     else:
@@ -52,9 +54,7 @@ def user_sites(request):
     if request.method == 'POST':
         form = UserSiteForm(request.POST)
         if form.is_valid():
-            user_site = form.save(commit=False)
-            user_site.user = request.user
-            user_site.save()
+            UserSite.objects.create(user=request.user, **form.cleaned_data)
             return redirect('user_sites')
     else:
         form = UserSiteForm()
@@ -72,9 +72,7 @@ def create_site(request):
     if request.method == 'POST':
         form = UserSiteForm(request.POST)
         if form.is_valid():
-            user_site = form.save(commit=False)
-            user_site.user = request.user
-            user_site.save()
+            UserSite.objects.create(user=request.user, **form.cleaned_data)
             return redirect('site_list')
     else:
         form = UserSiteForm()
@@ -85,3 +83,26 @@ def create_site(request):
 def site_list(request):
     sites = UserSite.objects.filter(user=request.user)
     return render(request, 'vpn_service/site_list.html', {'sites': sites})
+
+
+@login_required
+def proxy_view(request, site_name, path):
+    try:
+        user_site = UserSite.objects.get(user=request.user, name=site_name)
+    except UserSite.DoesNotExist:
+        return HttpResponseNotFound("Site not found")
+
+    target_url = f"{user_site.original_url}/{path}"
+    response = requests.get(target_url, params=request.GET)
+    # maybe append headers in request
+
+    vpn_usage, _ = VPNUsage.objects.get_or_create(user=request.user, site=user_site,
+                                                        date__date=timezone.now().date())
+    vpn_usage.page_views += 1
+    vpn_usage.data_received += len(response.content)
+    vpn_usage.data_sent += len(request.body or b'')
+    vpn_usage.save()
+
+    content = response.content.decode('utf-8')
+    content = content.replace(user_site.original_url, f"/{site_name}")
+    return HttpResponse(content, status=response.status_code,)
