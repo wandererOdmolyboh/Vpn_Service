@@ -94,7 +94,7 @@ def proxy_view(request, site_name, path):
     # maybe append headers in request
 
     vpn_usage, _ = VPNUsage.objects.get_or_create(user=request.user, site=user_site,
-                                                        date__date=timezone.now().date())
+                                                  date__date=timezone.now().date())
     vpn_usage.page_views += 1
     vpn_usage.data_received += len(response.content)
     vpn_usage.data_sent += len(request.body or b'')
